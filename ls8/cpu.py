@@ -18,6 +18,7 @@ class CPU:
         branch_table = {
             0b10000010: self.LDI,
             0b01000111: self.PRN,  
+            0b10100010: self.MULT,
             0b00000001: self.HLT,
         }
         if func in branch_table:
@@ -41,8 +42,15 @@ class CPU:
         self.running = False
         self.pc += 1
 
+    def MULT(self):
+        self.alu('MULT', self.pc+1, self.pc+2)
+        self.pc += 3
+
     def ram_read(self, MAR):
         return self.ram[MAR]
+
+    def ram_write(self, MDR, MAR):
+        self.ram[MAR] = MDR
 
     def load(self, file_path):
         """Load a program into memory."""
@@ -58,9 +66,8 @@ class CPU:
     def alu(self, op, reg_a, reg_b):
         """ALU operations."""
 
-        if op == "ADD":
-            self.reg[reg_a] += self.reg[reg_b]
-        #elif op == "SUB": etc
+        if op ==  "MULT":
+            self.reg[self.ram[reg_a]] *= self.reg[self.ram[reg_b]]
         else:
             raise Exception("Unsupported ALU operation")
 
